@@ -2,6 +2,7 @@ receivers:
   otlp:
     protocols:
       http:
+      grpc:
 
 processors:
   batch:
@@ -9,6 +10,9 @@ processors:
 exporters:
   logging:
     loglevel: debug
+
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
 
   prometheus:
     endpoint: "0.0.0.0:8889"
@@ -35,13 +39,16 @@ extensions:
   zpages:
 
 service:
-  extensions: [health_check, pprof, zpages]
+  extensions: [ health_check, pprof, zpages ]
   pipelines:
     metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, prometheus]
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ prometheus ]
     traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, zipkin, jaeger, otlp]
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ zipkin, jaeger, otlp ]
+    logs:
+      receivers: [ otlp ]
+      exporters: [ loki ]
